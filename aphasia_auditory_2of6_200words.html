@@ -1,0 +1,145 @@
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bài tập nghe hiểu – Chọn 2 trong 6 hình</title><style>
+:root{font-family:Arial,"Segoe UI",sans-serif;color:#20374c;background:#f0f6f9}*{box-sizing:border-box}body{margin:0}.app{max-width:920px;margin:18px auto;padding:20px;background:white;border-radius:18px;box-shadow:0 5px 24px #143e5214}h1{font-size:clamp(25px,4vw,38px);text-align:center;margin:20px 0 8px;color:#175d83}h2{text-align:center;font-size:22px;margin:12px 0}.sub{text-align:center;color:#526d7b;font-size:20px;margin:8px 0 24px}.center{text-align:center}.hero{padding:30px 8px}.intro-icons{font-size:44px;display:flex;justify-content:center;gap:15px;margin:22px 0}.btn{background:#17658b;color:white;border:0;border-radius:10px;padding:12px 19px;font-size:17px;font-weight:700;cursor:pointer;min-height:48px}.btn.secondary{background:#e7f1f6;color:#175d83}.btn:disabled{opacity:.45;cursor:not-allowed}.controls{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:20px 0 6px}.status{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#486579;font-weight:bold;flex-wrap:wrap}.progress{height:8px;background:#e6eef2;border-radius:9px;overflow:hidden;margin:12px 0 20px}.progress>div{background:#2183a5;height:100%;transition:width .2s}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.tile{border:3px solid #d6e4eb;background:#f9fcfd;border-radius:14px;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}.tile .emoji{font-size:clamp(48px,7vw,76px);line-height:1.2}.tile .color{width:74%;height:100px;border-radius:10px;border:1px solid #bbb}.tile:disabled{cursor:default}.tile.chosen{border-color:#237eb4;background:#e7f3fc}.tile.correct{border-color:#26a269;background:#e8f8ee}.tile.wrong{border-color:#dc5555;background:#fff0f0}.tile .tick{position:absolute;top:5px;right:9px;font-size:22px}.feedback{min-height:72px;margin:15px auto;text-align:center;font-size:20px;font-weight:bold}.feedback.good{color:#197748}.feedback.bad{color:#ad3333}.teacher{background:#fff7e4;border:1px solid #e8d4a7;border-radius:10px;padding:12px;margin:12px 0;font-size:16px}.teacher summary{cursor:pointer;font-weight:700}.note{font-size:13px;color:#657986;text-align:center;margin-top:18px}.result{font-size:24px;font-weight:700;text-align:center;margin:18px 0}.hidden{display:none!important}@media(max-width:540px){.app{margin:0;padding:12px;border-radius:0}.grid{gap:8px}.tile{min-height:113px}.tile .emoji{font-size:46px}.tile .color{height:72px}.btn{font-size:15px;padding:10px 13px}.intro-icons{font-size:32px}}
+
+.tile.selected{border-color:#17658b;background:#e1f2fc;box-shadow:0 0 0 2px #17658b33}
+.tile.correct{border-color:#26a269;background:#e8f8ee}
+.tile.wrong{border-color:#dc5555;background:#fff0f0}
+.tile:disabled{opacity:1}
+.feedback{min-height:95px}
+@media(min-width:750px){.tile{min-height:155px}}
+</style></head><body>
+<main class="app">
+<section id="home" class="hero center">
+<h1>Bài tập nghe hiểu</h1><p class="sub">Chọn 2 trong 6 hình</p>
+<div class="intro-icons" aria-hidden="true">🐶 🍎 🚲 🐱 🍌 🏥</div>
+<p>Nghe 2 từ và chọn 2 hình tương ứng.</p>
+<button class="btn" id="start">Bắt đầu</button>
+</section>
+<section id="game" class="hidden">
+<div class="status"><span id="round"></span><span id="counter"></span></div>
+<div class="progress"><div id="bar"></div></div>
+<details class="teacher" id="teacher"><summary>Dành cho người hướng dẫn – xem 2 từ cần đọc</summary>
+<div id="target" style="margin-top:9px"></div>
+<small>Đóng phần này trước khi cho bệnh nhân xem màn hình.</small></details>
+<p class="sub" style="margin:8px 0 15px">Nghe và chọn 2 hình đúng</p>
+<div id="grid" class="grid"></div>
+<div id="feedback" class="feedback" aria-live="polite"></div>
+<div class="controls">
+<button class="btn" id="submit" disabled>Kiểm tra đáp án</button>
+<button class="btn secondary" id="prev">← Trước</button>
+<button class="btn secondary" id="retry">Làm lại câu này</button>
+<button class="btn secondary" id="next">Tiếp →</button>
+<button class="btn secondary" id="homeBtn">Trang chủ</button>
+</div>
+</section>
+<section id="end" class="hidden center">
+<h1>Kết quả</h1>
+<div id="firstScore" class="result"></div><div id="secondScore" class="result"></div>
+<div class="controls">
+<button class="btn" id="review">Kiểm tra lại câu sai</button>
+<button class="btn secondary" id="restart">Bắt đầu lại (20 câu mới)</button>
+<button class="btn secondary" id="endHome">Trang chủ</button>
+</div></section>
+<p class="note">Bài tập hỗ trợ luyện nghe hiểu, không phải thang đánh giá chuẩn hóa. Không lưu thông tin bệnh nhân.</p>
+</main>
+<script>
+const WORDS=[{"id":1,"word":"Cơm","pic":"🍚","cat":0,"kind":"emoji"},{"id":2,"word":"Cháo","pic":"🥣","cat":0,"kind":"emoji"},{"id":3,"word":"Bánh mì","pic":"🥖","cat":0,"kind":"emoji"},{"id":4,"word":"Phở","pic":"🍜","cat":0,"kind":"emoji"},{"id":5,"word":"Bún","pic":"🍝","cat":0,"kind":"emoji"},{"id":6,"word":"Trứng gà","pic":"🥚","cat":0,"kind":"emoji"},{"id":7,"word":"Thịt heo","pic":"🥩","cat":0,"kind":"emoji"},{"id":8,"word":"Thịt gà","pic":"🍗","cat":0,"kind":"emoji"},{"id":9,"word":"Bánh xèo","pic":"🥞","cat":0,"kind":"emoji"},{"id":10,"word":"Tôm","pic":"🦐","cat":0,"kind":"emoji"},{"id":11,"word":"Rau","pic":"🥬","cat":0,"kind":"emoji"},{"id":12,"word":"Cà rốt","pic":"🥕","cat":0,"kind":"emoji"},{"id":13,"word":"Khoai tây","pic":"🥔","cat":0,"kind":"emoji"},{"id":14,"word":"Cà chua","pic":"🍅","cat":0,"kind":"emoji"},{"id":15,"word":"Dưa leo","pic":"🥒","cat":0,"kind":"emoji"},{"id":16,"word":"Trái chuối","pic":"🍌","cat":0,"kind":"emoji"},{"id":17,"word":"Trái táo","pic":"🍎","cat":0,"kind":"emoji"},{"id":18,"word":"Trái cam","pic":"🍊","cat":0,"kind":"emoji"},{"id":19,"word":"Trái xoài","pic":"🥭","cat":0,"kind":"emoji"},{"id":20,"word":"Dưa hấu","pic":"🍉","cat":0,"kind":"emoji"},{"id":21,"word":"Trái nho","pic":"🍇","cat":0,"kind":"emoji"},{"id":22,"word":"Trái thơm","pic":"🍍","cat":0,"kind":"emoji"},{"id":23,"word":"Trái dừa","pic":"🥥","cat":0,"kind":"emoji"},{"id":24,"word":"Trái ổi","pic":"🍐","cat":0,"kind":"emoji"},{"id":25,"word":"Sữa","pic":"🥛","cat":0,"kind":"emoji"},{"id":26,"word":"Nước lọc","pic":"💧","cat":0,"kind":"emoji"},{"id":27,"word":"Cà phê","pic":"☕","cat":0,"kind":"emoji"},{"id":28,"word":"Trà","pic":"🍵","cat":0,"kind":"emoji"},{"id":29,"word":"Nước cam","pic":"🧃","cat":0,"kind":"emoji"},{"id":30,"word":"Kem","pic":"🍦","cat":0,"kind":"emoji"},{"id":31,"word":"Con chó","pic":"🐶","cat":1,"kind":"emoji"},{"id":32,"word":"Con mèo","pic":"🐱","cat":1,"kind":"emoji"},{"id":33,"word":"Con gà","pic":"🐓","cat":1,"kind":"emoji"},{"id":34,"word":"Con vịt","pic":"🦆","cat":1,"kind":"emoji"},{"id":35,"word":"Con bò","pic":"🐄","cat":1,"kind":"emoji"},{"id":36,"word":"Con heo","pic":"🐖","cat":1,"kind":"emoji"},{"id":37,"word":"Con trâu","pic":"🐃","cat":1,"kind":"emoji"},{"id":38,"word":"Con ngựa","pic":"🐎","cat":1,"kind":"emoji"},{"id":39,"word":"Con dê","pic":"🐐","cat":1,"kind":"emoji"},{"id":40,"word":"Con thỏ","pic":"🐇","cat":1,"kind":"emoji"},{"id":41,"word":"Con chuột","pic":"🐁","cat":1,"kind":"emoji"},{"id":42,"word":"Con voi","pic":"🐘","cat":1,"kind":"emoji"},{"id":43,"word":"Con khỉ","pic":"🐒","cat":1,"kind":"emoji"},{"id":44,"word":"Con cọp","pic":"🐅","cat":1,"kind":"emoji"},{"id":45,"word":"Con sư tử","pic":"🦁","cat":1,"kind":"emoji"},{"id":46,"word":"Con rắn","pic":"🐍","cat":1,"kind":"emoji"},{"id":47,"word":"Con ếch","pic":"🐸","cat":1,"kind":"emoji"},{"id":48,"word":"Con cá","pic":"🐟","cat":1,"kind":"emoji"},{"id":49,"word":"Con chim","pic":"🐦","cat":1,"kind":"emoji"},{"id":50,"word":"Con bướm","pic":"🦋","cat":1,"kind":"emoji"},{"id":51,"word":"Điện thoại","pic":"📱","cat":2,"kind":"emoji"},{"id":52,"word":"Đồng hồ","pic":"⏰","cat":2,"kind":"emoji"},{"id":53,"word":"Chìa khóa","pic":"🔑","cat":2,"kind":"emoji"},{"id":54,"word":"Ví tiền","pic":"👛","cat":2,"kind":"emoji"},{"id":55,"word":"Cái túi","pic":"👜","cat":2,"kind":"emoji"},{"id":56,"word":"Cái dù","pic":"☂️","cat":2,"kind":"emoji"},{"id":57,"word":"Cái ly","pic":"🥛","cat":2,"kind":"emoji"},{"id":58,"word":"Cái chén","pic":"🍚","cat":2,"kind":"emoji"},{"id":59,"word":"Cái dĩa","pic":"🍽️","cat":2,"kind":"emoji"},{"id":60,"word":"Cái muỗng","pic":"🥄","cat":2,"kind":"emoji"},{"id":61,"word":"Đũa","pic":"🥢","cat":2,"kind":"emoji"},{"id":62,"word":"Cái nĩa","pic":"🍴","cat":2,"kind":"emoji"},{"id":63,"word":"Con dao","pic":"🔪","cat":2,"kind":"emoji"},{"id":64,"word":"Cái kéo","pic":"✂️","cat":2,"kind":"emoji"},{"id":65,"word":"Bàn chải đánh răng","pic":"🪥","cat":2,"kind":"emoji"},{"id":66,"word":"Kem đánh răng","pic":"🦷","cat":2,"kind":"emoji"},{"id":67,"word":"Xà bông","pic":"🧼","cat":2,"kind":"emoji"},{"id":68,"word":"Cái khăn","pic":"🧻","cat":2,"kind":"emoji"},{"id":69,"word":"Cái gương","pic":"🪞","cat":2,"kind":"emoji"},{"id":70,"word":"Cái lược","pic":"🪮","cat":2,"kind":"emoji"},{"id":71,"word":"Cây bút","pic":"🖊️","cat":2,"kind":"emoji"},{"id":72,"word":"Quyển sách","pic":"📖","cat":2,"kind":"emoji"},{"id":73,"word":"Tờ giấy","pic":"📄","cat":2,"kind":"emoji"},{"id":74,"word":"Cái thùng rác","pic":"🗑️","cat":2,"kind":"emoji"},{"id":75,"word":"Cái xô","pic":"🪣","cat":2,"kind":"emoji"},{"id":76,"word":"Cái bàn","pic":"🪑","cat":3,"kind":"emoji"},{"id":77,"word":"Cái ghế","pic":"🪑","cat":3,"kind":"emoji"},{"id":78,"word":"Cái giường","pic":"🛏️","cat":3,"kind":"emoji"},{"id":79,"word":"Cái tủ","pic":"🗄️","cat":3,"kind":"emoji"},{"id":80,"word":"Ghế sofa","pic":"🛋️","cat":3,"kind":"emoji"},{"id":81,"word":"Cái gối","pic":"🛌","cat":3,"kind":"emoji"},{"id":82,"word":"Cái mền","pic":"🧣","cat":3,"kind":"emoji"},{"id":83,"word":"Cái quạt","pic":"🪭","cat":3,"kind":"emoji"},{"id":84,"word":"Máy lạnh","pic":"❄️","cat":3,"kind":"emoji"},{"id":85,"word":"Tivi","pic":"📺","cat":3,"kind":"emoji"},{"id":86,"word":"Tủ lạnh","pic":"🧊","cat":3,"kind":"emoji"},{"id":87,"word":"Máy giặt","pic":"🧺","cat":3,"kind":"emoji"},{"id":88,"word":"Bếp ga","pic":"🍳","cat":3,"kind":"emoji"},{"id":89,"word":"Cửa sổ","pic":"🪟","cat":3,"kind":"emoji"},{"id":90,"word":"Cánh cửa","pic":"🚪","cat":3,"kind":"emoji"},{"id":91,"word":"Cái áo","pic":"👕","cat":4,"kind":"emoji"},{"id":92,"word":"Cái quần","pic":"👖","cat":4,"kind":"emoji"},{"id":93,"word":"Áo thun","pic":"👕","cat":4,"kind":"emoji"},{"id":94,"word":"Áo sơ mi","pic":"👔","cat":4,"kind":"emoji"},{"id":95,"word":"Áo khoác","pic":"🧥","cat":4,"kind":"emoji"},{"id":96,"word":"Áo mưa","pic":"🧥","cat":4,"kind":"emoji"},{"id":97,"word":"Cái váy","pic":"👗","cat":4,"kind":"emoji"},{"id":98,"word":"Đầm","pic":"👗","cat":4,"kind":"emoji"},{"id":99,"word":"Quần short","pic":"🩳","cat":4,"kind":"emoji"},{"id":100,"word":"Đôi dép","pic":"🩴","cat":4,"kind":"emoji"},{"id":101,"word":"Đôi giày","pic":"👟","cat":4,"kind":"emoji"},{"id":102,"word":"Đôi vớ","pic":"🧦","cat":4,"kind":"emoji"},{"id":103,"word":"Cái nón","pic":"🧢","cat":4,"kind":"emoji"},{"id":104,"word":"Khăn choàng","pic":"🧣","cat":4,"kind":"emoji"},{"id":105,"word":"Dây nịt","pic":"🪢","cat":4,"kind":"emoji"},{"id":106,"word":"Đầu","pic":"👤","cat":5,"kind":"emoji"},{"id":107,"word":"Tóc","pic":"💇","cat":5,"kind":"emoji"},{"id":108,"word":"Mắt","pic":"👁️","cat":5,"kind":"emoji"},{"id":109,"word":"Tai","pic":"👂","cat":5,"kind":"emoji"},{"id":110,"word":"Mũi","pic":"👃","cat":5,"kind":"emoji"},{"id":111,"word":"Miệng","pic":"👄","cat":5,"kind":"emoji"},{"id":112,"word":"Răng","pic":"🦷","cat":5,"kind":"emoji"},{"id":113,"word":"Lưỡi","pic":"👅","cat":5,"kind":"emoji"},{"id":114,"word":"Môi","pic":"💋","cat":5,"kind":"emoji"},{"id":115,"word":"Cổ","pic":"🧣","cat":5,"kind":"emoji"},{"id":116,"word":"Vai","pic":"💪","cat":5,"kind":"emoji"},{"id":117,"word":"Cánh tay","pic":"💪","cat":5,"kind":"emoji"},{"id":118,"word":"Bàn tay","pic":"✋","cat":5,"kind":"emoji"},{"id":119,"word":"Ngón tay","pic":"☝️","cat":5,"kind":"emoji"},{"id":120,"word":"Ngực","pic":"🫁","cat":5,"kind":"emoji"},{"id":121,"word":"Bụng","pic":"🫃","cat":5,"kind":"emoji"},{"id":122,"word":"Lưng","pic":"🚶","cat":5,"kind":"emoji"},{"id":123,"word":"Chân","pic":"🦵","cat":5,"kind":"emoji"},{"id":124,"word":"Đầu gối","pic":"🦵","cat":5,"kind":"emoji"},{"id":125,"word":"Bàn chân","pic":"🦶","cat":5,"kind":"emoji"},{"id":126,"word":"Xe đạp","pic":"🚲","cat":6,"kind":"emoji"},{"id":127,"word":"Xe máy","pic":"🛵","cat":6,"kind":"emoji"},{"id":128,"word":"Xe hơi","pic":"🚗","cat":6,"kind":"emoji"},{"id":129,"word":"Xe buýt","pic":"🚌","cat":6,"kind":"emoji"},{"id":130,"word":"Xe tải","pic":"🚚","cat":6,"kind":"emoji"},{"id":131,"word":"Xe cứu thương","pic":"🚑","cat":6,"kind":"emoji"},{"id":132,"word":"Xe lửa","pic":"🚆","cat":6,"kind":"emoji"},{"id":133,"word":"Máy bay","pic":"✈️","cat":6,"kind":"emoji"},{"id":134,"word":"Tàu thủy","pic":"🚢","cat":6,"kind":"emoji"},{"id":135,"word":"Xe taxi","pic":"🚕","cat":6,"kind":"emoji"},{"id":136,"word":"Bác sĩ","pic":"👨‍⚕️","cat":7,"kind":"emoji"},{"id":137,"word":"Điều dưỡng","pic":"👩‍⚕️","cat":7,"kind":"emoji"},{"id":138,"word":"Bệnh nhân","pic":"🧑‍🦽","cat":7,"kind":"emoji"},{"id":139,"word":"Xe lăn","pic":"🦽","cat":7,"kind":"emoji"},{"id":140,"word":"Nạng","pic":"🩼","cat":7,"kind":"emoji"},{"id":141,"word":"Gậy chống","pic":"🦯","cat":7,"kind":"emoji"},{"id":142,"word":"Giường bệnh","pic":"🛏️","cat":7,"kind":"emoji"},{"id":143,"word":"Ống nghe","pic":"🩺","cat":7,"kind":"emoji"},{"id":144,"word":"Nhiệt kế","pic":"🌡️","cat":7,"kind":"emoji"},{"id":145,"word":"Máy đo huyết áp","pic":"🩺","cat":7,"kind":"emoji"},{"id":146,"word":"Ống tiêm","pic":"💉","cat":7,"kind":"emoji"},{"id":147,"word":"Viên thuốc","pic":"💊","cat":7,"kind":"emoji"},{"id":148,"word":"Khẩu trang","pic":"😷","cat":7,"kind":"emoji"},{"id":149,"word":"Băng gạc","pic":"🩹","cat":7,"kind":"emoji"},{"id":150,"word":"Bình oxy","pic":"🫧","cat":7,"kind":"emoji"},{"id":151,"word":"Mặt trời","pic":"☀️","cat":8,"kind":"emoji"},{"id":152,"word":"Mặt trăng","pic":"🌙","cat":8,"kind":"emoji"},{"id":153,"word":"Ngôi sao","pic":"⭐","cat":8,"kind":"emoji"},{"id":154,"word":"Đám mây","pic":"☁️","cat":8,"kind":"emoji"},{"id":155,"word":"Mưa","pic":"🌧️","cat":8,"kind":"emoji"},{"id":156,"word":"Cây","pic":"🌳","cat":8,"kind":"emoji"},{"id":157,"word":"Bông hoa","pic":"🌸","cat":8,"kind":"emoji"},{"id":158,"word":"Lá cây","pic":"🍃","cat":8,"kind":"emoji"},{"id":159,"word":"Núi","pic":"⛰️","cat":8,"kind":"emoji"},{"id":160,"word":"Sông","pic":"🏞️","cat":8,"kind":"emoji"},{"id":161,"word":"Em bé","pic":"👶","cat":9,"kind":"emoji"},{"id":162,"word":"Bé trai","pic":"👦","cat":9,"kind":"emoji"},{"id":163,"word":"Bé gái","pic":"👧","cat":9,"kind":"emoji"},{"id":164,"word":"Ông già","pic":"👴","cat":9,"kind":"emoji"},{"id":165,"word":"Bà già","pic":"👵","cat":9,"kind":"emoji"},{"id":166,"word":"Giáo viên","pic":"🧑‍🏫","cat":9,"kind":"emoji"},{"id":167,"word":"Công an","pic":"👮","cat":9,"kind":"emoji"},{"id":168,"word":"Lính cứu hỏa","pic":"👨‍🚒","cat":9,"kind":"emoji"},{"id":169,"word":"Đầu bếp","pic":"🧑‍🍳","cat":9,"kind":"emoji"},{"id":170,"word":"Nông dân","pic":"🧑‍🌾","cat":9,"kind":"emoji"},{"id":171,"word":"Màu đỏ","pic":"#e53935","cat":10,"kind":"color"},{"id":172,"word":"Màu xanh dương","pic":"#1976d2","cat":10,"kind":"color"},{"id":173,"word":"Màu xanh lá cây","pic":"#43a047","cat":10,"kind":"color"},{"id":174,"word":"Màu vàng","pic":"#fdd835","cat":10,"kind":"color"},{"id":175,"word":"Màu đen","pic":"#212121","cat":10,"kind":"color"},{"id":176,"word":"Màu trắng","pic":"#ffffff","cat":10,"kind":"color"},{"id":177,"word":"Màu cam","pic":"#fb8c00","cat":10,"kind":"color"},{"id":178,"word":"Màu tím","pic":"#8e24aa","cat":10,"kind":"color"},{"id":179,"word":"Màu hồng","pic":"#f48fb1","cat":10,"kind":"color"},{"id":180,"word":"Màu nâu","pic":"#795548","cat":10,"kind":"color"},{"id":181,"word":"Nhà","pic":"🏠","cat":11,"kind":"emoji"},{"id":182,"word":"Bệnh viện","pic":"🏥","cat":11,"kind":"emoji"},{"id":183,"word":"Trường học","pic":"🏫","cat":11,"kind":"emoji"},{"id":184,"word":"Chợ","pic":"🏬","cat":11,"kind":"emoji"},{"id":185,"word":"Siêu thị","pic":"🛒","cat":11,"kind":"emoji"},{"id":186,"word":"Nhà hàng","pic":"🍽️","cat":11,"kind":"emoji"},{"id":187,"word":"Quán cà phê","pic":"☕","cat":11,"kind":"emoji"},{"id":188,"word":"Nhà thuốc","pic":"💊","cat":11,"kind":"emoji"},{"id":189,"word":"Ngân hàng","pic":"🏦","cat":11,"kind":"emoji"},{"id":190,"word":"Bưu điện","pic":"🏣","cat":11,"kind":"emoji"},{"id":191,"word":"Công viên","pic":"🏞️","cat":11,"kind":"emoji"},{"id":192,"word":"Sân bay","pic":"🛫","cat":11,"kind":"emoji"},{"id":193,"word":"Bến xe","pic":"🚌","cat":11,"kind":"emoji"},{"id":194,"word":"Nhà ga","pic":"🚉","cat":11,"kind":"emoji"},{"id":195,"word":"Nhà thờ","pic":"⛪","cat":11,"kind":"emoji"},{"id":196,"word":"Chùa","pic":"🛕","cat":11,"kind":"emoji"},{"id":197,"word":"Nhà vệ sinh","pic":"🚻","cat":11,"kind":"emoji"},{"id":198,"word":"Nhà bếp","pic":"🍳","cat":11,"kind":"emoji"},{"id":199,"word":"Phòng ngủ","pic":"🛏️","cat":11,"kind":"emoji"},{"id":200,"word":"Phòng tắm","pic":"🛁","cat":11,"kind":"emoji"}];
+const $=id=>document.getElementById(id);
+const shuffle=a=>{let x=[...a];for(let i=x.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x};
+let original=[],review=[],phase='first',index=0;
+const current=()=>phase==='first'?original:review;
+function pairs20(){
+ const pool=shuffle(WORDS),pairs=[];
+ // Each target word occurs at most once in the 20-question session.
+ while(pairs.length<20 && pool.length>=2){
+  const a=pool.shift();
+  let j=pool.findIndex(w=>w.pic!==a.pic && (a.cat!==10 || w.cat===10) && (w.cat!==10 || a.cat===10));
+  if(j<0)j=pool.findIndex(w=>w.pic!==a.pic && w.cat!==10 && a.cat!==10);
+  if(j<0)continue;
+  const b=pool.splice(j,1)[0];
+  pairs.push([a,b]);
+ }
+ return pairs;
+}
+function choicesFor(targets){
+ const ids=new Set(targets.map(w=>w.id)),pics=new Set(targets.map(w=>w.pic));
+ const colors=targets.every(w=>w.cat===10);
+ const pool=shuffle(WORDS.filter(w=>!ids.has(w.id) && !pics.has(w.pic) && (colors?w.cat===10:w.cat!==10)));
+ const distractors=[];
+ for(const w of pool){
+  if(!pics.has(w.pic)){distractors.push(w);pics.add(w.pic)}
+  if(distractors.length===4)break;
+ }
+ if(distractors.length!==4)throw Error('Không đủ hình khác nhau');
+ return shuffle([...targets,...distractors]);
+}
+function question(targets){return {targets,options:choicesFor(targets),selected:[],submitted:false,firstCorrect:null,firstSelection:null}}
+function show(which){['home','game','end'].forEach(id=>$(id).classList.toggle('hidden',id!==which))}
+function start(){original=pairs20().map(question);review=[];phase='first';index=0;render()}
+function isCorrect(q){return q.selected.length===2&&q.targets.every(w=>q.selected.includes(w.id))}
+function render(){
+ const arr=current();if(index>=arr.length){results();return}
+ show('game');const q=arr[index];
+ $('round').textContent=phase==='first'?'Lần đầu':'Kiểm tra lại';
+ $('counter').textContent=`Câu ${index+1}/${arr.length}`;
+ $('bar').style.width=((index+1)/arr.length*100)+'%';
+ $('target').textContent=q.targets.map(w=>w.word).join(' + ');
+ $('teacher').open=false;
+ const g=$('grid');g.innerHTML='';
+ for(const [i,w] of q.options.entries()){
+  const b=document.createElement('button');b.type='button';b.className='tile';
+  b.setAttribute('aria-label','Hình '+(i+1));
+  b.setAttribute('aria-pressed',String(q.selected.includes(w.id)));
+  if(w.kind==='color'){const d=document.createElement('div');d.className='color';d.style.background=w.pic;b.appendChild(d)}
+  else{const d=document.createElement('span');d.className='emoji';d.textContent=w.pic;b.appendChild(d)}
+  if(q.selected.includes(w.id))b.classList.add('selected');
+  if(q.submitted){
+   b.disabled=true;
+   if(q.targets.some(t=>t.id===w.id)){b.classList.add('correct');b.insertAdjacentHTML('beforeend','<span class="tick">✓</span>')}
+   else if(q.selected.includes(w.id))b.classList.add('wrong');
+  }else b.onclick=()=>select(w.id);
+  g.appendChild(b);
+ }
+ const f=$('feedback');f.className='feedback';
+ if(q.submitted){
+  const ok=isCorrect(q);f.classList.add(ok?'good':'bad');
+  f.textContent=(ok?'✓ Đúng! ':'✗ Chưa đúng. ')+`Đáp án: ${q.targets.map(w=>w.word).join(' + ')}`;
+ }else f.textContent=`Đã chọn ${q.selected.length}/2 hình`;
+ $('submit').disabled=q.submitted||q.selected.length!==2;
+ $('prev').disabled=index===0;
+ $('next').disabled=!q.submitted;
+ $('next').textContent=index===arr.length-1?'Xem kết quả →':'Tiếp →';
+}
+function select(id){
+ const q=current()[index];if(q.submitted)return;
+ if(q.selected.includes(id))q.selected=q.selected.filter(x=>x!==id);
+ else if(q.selected.length<2)q.selected.push(id);
+ render();
+}
+function submit(){
+ const q=current()[index];if(q.submitted||q.selected.length!==2)return;
+ q.submitted=true;
+ if(q.firstCorrect===null){q.firstCorrect=isCorrect(q);q.firstSelection=[...q.selected]}
+ render();
+}
+function retry(){
+ const q=current()[index];q.options=choicesFor(q.targets);q.selected=[];q.submitted=false;render();
+}
+function move(delta){
+ const arr=current();if(delta>0&&!arr[index].submitted)return;
+ index+=delta;if(index>=arr.length)results();else if(index>=0)render();else index=0;
+}
+function results(){
+ show('end');
+ $('firstScore').textContent=`Lần đầu: ${original.filter(q=>q.firstCorrect===true).length}/20 câu đúng`;
+ $('secondScore').textContent=review.length?`Kiểm tra lại: ${review.filter(q=>q.firstCorrect===true).length}/${review.length} câu đúng`:'Kiểm tra lại: Chưa thực hiện';
+ const missed=original.filter(q=>q.firstCorrect===false);
+ $('review').classList.toggle('hidden',phase==='review'||missed.length===0);
+ $('review').textContent=`Kiểm tra lại ${missed.length} câu sai`;
+}
+$('start').onclick=start;$('restart').onclick=start;$('submit').onclick=submit;
+$('prev').onclick=()=>move(-1);$('next').onclick=()=>move(1);$('retry').onclick=retry;
+$('homeBtn').onclick=()=>show('home');$('endHome').onclick=()=>show('home');
+$('review').onclick=()=>{review=shuffle(original.filter(q=>q.firstCorrect===false)).map(q=>question(q.targets));phase='review';index=0;render()};
+</script></body></html>
